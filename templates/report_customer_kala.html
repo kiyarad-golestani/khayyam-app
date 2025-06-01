@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>گزارش خرید مشتری خاص</title>
+</head>
+<body>
+    <h2>گزارش خرید مشتری خاص ({{ name }})</h2>
+
+    <form method="post">
+        <label>انتخاب مشتری:</label>
+        <select name="codec">
+            {% for c in customer_list %}
+                <option value="{{ c['Codec'] }}">{{ c['Namec'] }}</option>
+            {% endfor %}
+        </select><br>
+        <label>از تاریخ (مثلاً 14040101):</label>
+        <input type="text" name="from_date" required><br>
+        <label>تا تاریخ:</label>
+        <input type="text" name="to_date" required><br>
+        <button type="submit">نمایش گزارش</button>
+    </form>
+
+    {% if bought %}
+        <h3>کالاهای خریداری‌شده:</h3>
+        <ul>
+        {% for item in bought %}
+            <li>{{ item }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if not_bought %}
+        <h3>کالاهای نخریده:</h3>
+        <ul>
+        {% for item in not_bought %}
+            <li>{{ item }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+
+    <p><a href="{{ url_for('welcome') }}">بازگشت به منو</a></p>
+</body>
+</html>

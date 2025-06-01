@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>گزارش حضور بازاریاب</title>
+</head>
+<body>
+    <h2>گزارش حضور - {{ name }}</h2>
+
+    <form method="post">
+        <label>از تاریخ (مثلاً 14040206):</label>
+        <input type="text" name="from_date" required><br>
+        <label>تا تاریخ:</label>
+        <input type="text" name="to_date" required><br>
+        <button type="submit">نمایش گزارش</button>
+    </form>
+
+    {% if report %}
+        {% for week in report %}
+            <h3>هفته: {{ week.range }}</h3>
+            <table border="1">
+                <tr><th>کد مشتری</th><th>نام مشتری</th><th>وضعیت</th></tr>
+                {% for r in week.rows %}
+                <tr>
+                    <td>{{ r.Codec }}</td>
+                    <td>{{ r.Namec }}</td>
+                    <td>{{ r.Status }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        {% endfor %}
+    {% endif %}
+
+    <p><a href="{{ url_for('welcome') }}">بازگشت به داشبورد</a></p>
+</body>
+</html>

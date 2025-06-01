@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>داشبورد گزارش‌ها</title>
+</head>
+<body>
+    <h2>خوش آمدید {{ name }}</h2>
+    <p>لطفاً یکی از گزارش‌های زیر را انتخاب کنید:</p>
+
+    <ul>
+        <li><a href="{{ url_for('report_items') }}">گزارش کالاهای فروخته شده / نشده</a></li>
+        <li><a href="{{ url_for('report_customers') }}">گزارش مشتریان خرید کرده / نکرده</a></li>
+        <li><a href="{{ url_for('report_kala_customers') }}">گزارش مشتریان برای کالای خاص</a></li>
+        <li><a href="{{ url_for('report_sahmiye') }}">گزارش تحقق سهمیه کالاها</a></li>   
+        <li><a href="{{ url_for('catalog') }}">کاتالوگ</a></li>		
+        <li><a href="{{ url_for('presence') }}">تایید حضور</a></li>		
+        <li><a href="{{ url_for('hozur_report') }}">گزارش هفتگی حضور بازاریاب</a></li>		
+    </ul>
+
+    <p><a href="{{ url_for('logout') }}">خروج</a></p>
+</body>
+</html>

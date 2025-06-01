@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>گزارش فروش</title>
+</head>
+<body>
+
+    <h2>خوش آمدید {{ name }}</h2>
+	<label>از تاریخ (مثلاً 1402/01/01):</label>
+    <form method="post">
+        <label>از تاریخ (yyyy-mm-dd):</label>
+        <input type="text" name="from_date" required><br>
+        <label>تا تاریخ (yyyy-mm-dd):</label>
+        <input type="text" name="to_date" required><br>
+        <button type="submit">نمایش گزارش</button>
+    </form>
+    {% if message %}
+        <p style="color:red;">{{ message }}</p>
+    {% endif %}
+
+    {% if sold and sold|length > 0 %}
+        <h3>کالاهای فروخته‌شده</h3>
+        <table border="1">
+            <tr>
+                <th>نام کالا</th>
+                <th>مبلغ کل فروش</th>
+                <th>درصد از کل</th>
+            </tr>
+            {% for item in sold %}
+            <tr>
+                <td>{{ item['Namek'] }}</td>
+                <td>{{ item['total'] }}</td>
+                <td>{{ item['percent'] }}%</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+
+    {% if unsold  and unsold|length >0 %}
+        <h3>کالاهای نفروخته‌شده</h3>
+        <ul>
+        {% for item in unsold %}
+            <li>{{ item }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+
+    <p><a href="{{ url_for('logout') }}">خروج</a></p>
+</body>
+</html>

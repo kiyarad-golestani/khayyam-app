@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>گزارش مشتری‌ها</title>
+</head>
+<body>
+    <h2>گزارش مشتریان بازاریاب {{ name }}</h2>
+
+    <form method="post">
+        <label>از تاریخ (مثلاً 14040101):</label>
+        <input type="text" name="from_date" required><br>
+        <label>تا تاریخ:</label>
+        <input type="text" name="to_date" required><br>
+        <button type="submit">نمایش گزارش</button>
+    </form>
+
+    {% if buyers %}
+        <h3>مشتریان خرید کرده</h3>
+        <table border="1">
+            <tr>
+                <th>نام مشتری</th>
+                <th>مبلغ خرید</th>
+                <th>درصد از کل</th>
+            </tr>
+            {% for b in buyers %}
+            <tr>
+                <td>{{ b['Namec'] }}</td>
+                <td>{{ b['total'] }}</td>
+                <td>{{ b['percent'] }}%</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+
+    {% if not_buyers %}
+        <h3>مشتریان خرید نکرده</h3>
+        <ul>
+        {% for c in not_buyers %}
+            <li>{{ c }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+
+    <p><a href="{{ url_for('welcome') }}">بازگشت</a></p>
+</body>
+</html>

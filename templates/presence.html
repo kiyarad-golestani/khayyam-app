@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>ثبت حضور</title>
+</head>
+<body>
+    <h2>ثبت حضور - {{ name }}</h2>
+    <form method="post" onsubmit="return sendLocation();">
+        <label>انتخاب مشتری:</label>
+        <select name="codec" id="codec" required>
+            {% for c in customers %}
+                <option value="{{ c['Codec'] }}">{{ c['Namec'] }}</option>
+            {% endfor %}
+        </select>
+        <input type="hidden" name="lat" id="lat">
+        <input type="hidden" name="lon" id="lon">
+        <button type="submit">ثبت حضور</button>
+    </form>
+
+    {% if msg %}
+        <p><strong>{{ msg }}</strong></p>
+    {% endif %}
+
+    <p><a href="{{ url_for('welcome') }}">بازگشت به منو</a></p>
+
+    <script>
+    function sendLocation() {
+        if (!navigator.geolocation) {
+            alert("مرورگر شما از موقعیت جغرافیایی پشتیبانی نمی‌کند.");
+            return false;
+        }
+        navigator.geolocation.getCurrentPosition(function(position) {
+            document.getElementById("lat").value = position.coords.latitude;
+            document.getElementById("lon").value = position.coords.longitude;
+            document.forms[0].submit();
+        }, function() {
+            alert("دریافت موقعیت ناموفق بود.");
+        });
+        return false;
+    }
+    </script>
+</body>
+</html>

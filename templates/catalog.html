@@ -1,0 +1,171 @@
+{% extends "layout.html" %} {% block content %}
+
+<style>
+#brandMenu {
+  overflow-x: auto;
+  white-space: nowrap;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #ccc;
+}
+#brandMenu .brand-btn {
+  display: inline-block;
+  margin-right: 10px;
+  white-space: nowrap;
+}
+</style><div class="container mt-4">
+  <h3 class="mb-3">کاتالوگ کالاها</h3>  <!-- فرم تاریخ و مشتری -->  <form method="POST" class="row g-3 mb-4">
+    <div class="col-md-2">
+      <label>از تاریخ:</label>
+      <input type="text" name="from_date" class="form-control" required>
+    </div>
+    <div class="col-md-2">
+      <label>تا تاریخ:</label>
+      <input type="text" name="to_date" class="form-control" required>
+    </div>
+    <div class="col-md-4">
+      <label>مشتری:</label>
+      <select name="customer" class="form-select" required>
+        {% for name in customer_names %}
+          <option value="{{ name }}">{{ name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2 d-flex align-items-end">
+      <button type="submit" class="btn btn-primary">نمایش</button>
+    </div>
+  </form>  <!-- نوار برندها -->  <div id="brandMenu" class="mb-4 d-flex flex-nowrap">
+    <button class="btn btn-outline-dark brand-btn" data-brand="all">همه برندها</button>
+    {% for brand in brands %}
+      <button class="btn btn-outline-primary brand-btn" data-brand="{{ brand | lower }}">{{ brand }}</button>
+    {% endfor %}
+  </div>  <!-- فیلتر جستجو -->  <div class="row mb-3">
+    <div class="col-md-4">
+      <input type="text" id="searchInput" class="form-control" placeholder="جستجو در نام یا برند...">
+    </div>
+  </div>  <!-- کارت کالا -->  <div class="row row-cols-1 row-cols-md-4 g-4" id="productContainer">
+    {% for item in result %}
+    <div class="col product-card"
+         data-brand="{{ item.Brand | lower }}"
+         data-name="{{ item.Namek | lower }}">
+      <div class="card h-100">
+        <img src="{{ url_for('static', filename='images/' + item.image) }}" class="card-img-top img-fluid" alt="{{ item.Namek }}">
+        <div class="card-body text-center">
+          <h5 class="card-title">{{ item.Namek }}</h5>
+          <p class="card-text">
+            کد: {{ item.Codek }}<br>
+            برند: {{ item.Brand }}<br>
+            {% if item.purchased %}
+              <span class="badge bg-primary">خریده شده</span><br>
+              تاریخ: {{ item.last_date }} ({{ item.last_qty }} عدد)
+            {% else %}
+              <span class="badge bg-secondary">نخریده</span>
+            {% endif %}
+          </p>
+          <button class="btn btn-sm btn-info btn-show-info"
+                  data-info="{{ item.info|e }}"
+                  data-image="{{ url_for('static', filename='images/' + item.image) }}">
+            اطلاعات بیشتر
+          </button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>  <!-- صفحه‌بندی -->  <div class="d-flex justify-content-center mt-4">
+    <nav>
+      <ul class="pagination" id="paginationContainer"></ul>
+    </nav>
+  </div>
+</div><!-- Modal اطلاعات بیشتر --><div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">اطلاعات کالا</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+      </div>
+      <div class="modal-body text-center">
+        <img id="modalImage" src="" class="img-fluid mb-3" style="max-height:200px;">
+        <p id="infoModalBody"></p>
+      </div>
+    </div>
+  </div>
+</div><script>
+document.addEventListener('DOMContentLoaded', function () {
+  const cards = document.querySelectorAll('.product-card');
+  const brandButtons = document.querySelectorAll('.brand-btn');
+  const pagination = document.getElementById('paginationContainer');
+  const searchInput = document.getElementById('searchInput');
+  const cardsPerPage = 12;
+  let currentBrand = 'all';
+  let currentPage = 1;
+  let filteredCards = [];
+
+  document.querySelectorAll('.btn-show-info').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const info = this.dataset.info;
+      const img = this.dataset.image;
+      document.getElementById('infoModalBody').innerText = info;
+      document.getElementById('modalImage').src = img;
+      new bootstrap.Modal(document.getElementById('infoModal')).show();
+    });
+  });
+
+  brandButtons.forEach(button => {
+    button.addEventListener('click', function () {
+      currentBrand = this.dataset.brand.toLowerCase();
+      currentPage = 1;
+      searchInput.value = '';
+      filterAndRender();
+    });
+  });
+
+  searchInput.addEventListener('input', function () {
+    currentPage = 1;
+    filterAndRender();
+  });
+
+  function filterAndRender() {
+    const keyword = searchInput.value.trim().toLowerCase();
+
+    filteredCards = Array.from(cards).filter(card => {
+      const name = card.dataset.name.toLowerCase();
+      const brand = card.dataset.brand.toLowerCase();
+      const brandMatch = (currentBrand === 'all') || (brand === currentBrand);
+      return brandMatch && (name.includes(keyword) || brand.includes(keyword));
+    });
+
+    renderPage(currentPage);
+    renderPagination();
+  }
+
+  function renderPage(page) {
+    const start = (page - 1) * cardsPerPage;
+    const end = start + cardsPerPage;
+    cards.forEach(card => card.style.display = 'none');
+    filteredCards.slice(start, end).forEach(card => card.style.display = '');
+  }
+
+  function renderPagination() {
+    pagination.innerHTML = '';
+    const totalPages = Math.ceil(filteredCards.length / cardsPerPage);
+    for (let i = 1; i <= totalPages; i++) {
+      const li = document.createElement('li');
+      li.className = 'page-item' + (i === currentPage ? ' active' : '');
+      const a = document.createElement('a');
+      a.className = 'page-link';
+      a.href = '#';
+      a.innerText = i;
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        currentPage = i;
+        renderPage(currentPage);
+        renderPagination();
+      });
+      li.appendChild(a);
+      pagination.appendChild(li);
+    }
+  }
+
+  // پیش‌فرض: همه برندها
+  filterAndRender();
+});
+</script>{% endblock %}
